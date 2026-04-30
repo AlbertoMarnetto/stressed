@@ -43,6 +43,9 @@ public:
   void              setMaterials(const Materials& materials);
   Materials         restoreMaterials();
 
+  int               scale();
+  void              setScale(int value);
+
   static const char APP_NAME[];
   static const char APP_VER[];
   static const char APP_DESC[];
@@ -61,6 +64,7 @@ public:
   static const char PATH_PALETTES_VGA[];
   static const char PATH_TYPES[];
   static const char PATH_PATHS_RESOURCE[];
+  static const char PATH_BITMAP_SCALE[];
   static const char PATH_COMPRESSION_FORMAT[];
 
   static CompressionFormat getCompressionFormat();

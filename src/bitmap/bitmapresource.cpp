@@ -16,6 +16,7 @@ QString BitmapResource::m_currentFilePath;
 QString BitmapResource::m_currentFileFilter;
 
 const char BitmapResource::FILE_SETTINGS_PATH[] = "paths/bitmap";
+const char BitmapResource::BITMAP_SCALE_SETTINGS_PATH[] = "bitmap/scale";
 const char BitmapResource::FILE_FILTERS[] =
     "Image files (*.png *.bmp *.gif *.jpg *.jpeg);;"
     "Portable Network Graphics (*.png);;"
@@ -27,6 +28,7 @@ BitmapResource::BitmapResource(QString id, QWidget* parent, Qt::WindowFlags flag
 : Resource(id, parent, flags),
   m_ui(new Ui::BitmapResource)
 {
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
   setup();
 
   m_ui->editWidth->setText("0");
@@ -40,12 +42,14 @@ BitmapResource::BitmapResource(QString id, QWidget* parent, Qt::WindowFlags flag
   m_ui->editPlanar1->setText("02");
   m_ui->editPlanar2->setText("04");
   m_ui->editPlanar3->setText("08");
+
 }
 
 BitmapResource::BitmapResource(const BitmapResource& res)
 : Resource(res.id(), dynamic_cast<QWidget*>(res.parent()), res.windowFlags()),
   m_ui(new Ui::BitmapResource)
 {
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
   setup();
 
   m_ui->editWidth->setText(res.m_ui->editWidth->text());
@@ -65,9 +69,6 @@ BitmapResource::BitmapResource(const BitmapResource& res)
     m_image = new QImage(*res.m_image);
   }
 
-  m_ui->radioScale1->setChecked(res.m_ui->radioScale1->isChecked());
-  m_ui->radioScale2->setChecked(res.m_ui->radioScale2->isChecked());
-  m_ui->radioScale4->setChecked(res.m_ui->radioScale4->isChecked());
   m_ui->checkAlpha->setChecked(res.m_ui->checkAlpha->isChecked());
   toggleAlpha(m_ui->checkAlpha->isChecked());
 }
@@ -84,8 +85,8 @@ BitmapResource::BitmapResource(
   m_tocSize(tocSize),
   m_egaMode(egaMode)
 {
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
   setup();
-
   parse(in);
 }
 
@@ -97,6 +98,7 @@ BitmapResource::~BitmapResource()
 
 void BitmapResource::setup()
 {
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
   m_ui->setupUi(this);
 
   QIntValidator* posValidator = new QIntValidator(INT16_MIN, INT16_MAX, this);
@@ -105,11 +107,16 @@ void BitmapResource::setup()
   m_ui->editXalt->setValidator(posValidator);
   m_ui->editYalt->setValidator(posValidator);
 
+  // Connect clicked signals instead of toggled to avoid issues with radio button groups
+  connect(m_ui->radioScale1, SIGNAL(clicked()), this, SLOT(update_scale()));
+  connect(m_ui->radioScale2, SIGNAL(clicked()), this, SLOT(update_scale()));
+  connect(m_ui->radioScale4, SIGNAL(clicked()), this, SLOT(update_scale()));
+
   m_image = 0;
 }
 
-
 void BitmapResource::parse(QDataStream *in) {
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
   qint16 width, height, x, y, xAlt, yAlt;
   std::array<quint8, 4> planar;
 
@@ -353,19 +360,40 @@ void BitmapResource::toggleAlpha(bool alpha)
   scale(); // Repaint.
 }
 
+void BitmapResource::update_scale()
+{
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
+  Settings settings;
+  if (m_ui->radioScale1->isChecked()) {
+    settings.setScale(1);
+  }
+  else if (m_ui->radioScale2->isChecked()) {
+    settings.setScale(2);
+  }
+  else if (m_ui->radioScale4->isChecked()) {
+    settings.setScale(4);
+  }
+  scale();
+}
+
 void BitmapResource::scale()
 {
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
   if (!m_image) {
     return;
   }
 
-  if (m_ui->radioScale1->isChecked()) {
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
+  int scale = Settings().scale();
+    std::cerr << __LINE__ << " : "  << __PRETTY_FUNCTION__ << ": scale = " << scale << "\n";
+
+  if (scale == 1) {
     m_ui->imageLabel->setPixmap(QPixmap::fromImage(*m_image));
   }
-  else if (m_ui->radioScale2->isChecked()) {
+  else if (scale == 2) {
     m_ui->imageLabel->setPixmap(QPixmap::fromImage(m_image->scaled(m_image->width() * 2, m_image->height() * 2)));
   }
-  else if (m_ui->radioScale4->isChecked()) {
+  else {
     m_ui->imageLabel->setPixmap(QPixmap::fromImage(m_image->scaled(m_image->width() * 4, m_image->height() * 4)));
   }
 

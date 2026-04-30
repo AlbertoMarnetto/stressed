@@ -36,12 +36,14 @@ protected:
 
 private slots:
   void                 toggleAlpha(bool alpha);
+  void                 update_scale();
   void                 scale();
   void                 exportFile();
   void                 importFile();
 
 private:
   void                 setup();
+  void                 loadScaleFromSettings();
 
   void parseVga(
     QDataStream* in,
@@ -57,7 +59,6 @@ private:
 
   Ui::BitmapResource*   m_ui;
 
-
   QImage*              m_image;
   quint32 m_tocSize;
   bool m_egaMode{false};
@@ -66,6 +67,7 @@ private:
   static QString       m_currentFileFilter;
 
   static const char    FILE_SETTINGS_PATH[];
+  static const char    BITMAP_SCALE_SETTINGS_PATH[];
   static const char    FILE_FILTERS[];
 
   static const int     MAX_WIDTH   = 0xFFFF;

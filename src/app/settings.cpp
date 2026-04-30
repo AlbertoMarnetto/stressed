@@ -1,5 +1,7 @@
 #include <QDir>
 #include <QStringList>
+#include <iostream>
+#include <ostream>
 
 #include "settings.h"
 
@@ -21,7 +23,8 @@ const char Settings::PATH_MATERIALS_COLORS[]   = "materials/colors";
 const char Settings::PATH_MATERIALS_PATTERNS[] = "materials/patterns";
 const char Settings::PATH_PALETTES_VGA[]       = "palettes/vga";
 const char Settings::PATH_TYPES[]              = "types";
-const char Settings::PATH_PATHS_RESOURCE[]     = "paths/resource";
+const char Settings::PATH_PATHS_RESOURCE[] = "paths/resource";
+const char Settings::PATH_BITMAP_SCALE[] = "bitmap/scale";
 const char Settings::PATH_COMPRESSION_FORMAT[] = "compression/format";
 
 Palette    Settings::m_vgaPalette;
@@ -283,6 +286,20 @@ Materials Settings::restoreMaterials()
   setMaterials(materials);
 
   return materials;
+}
+
+int Settings::scale()
+{
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
+  Settings settings;
+  return settings.value(PATH_BITMAP_SCALE, 0).toInt();
+}
+
+void Settings::setScale(int value)
+{
+    std::cerr << __FILE__ << " : " << __LINE__ << " : "  << __PRETTY_FUNCTION__ << std::endl;
+  Settings settings;
+  settings.setValue(PATH_BITMAP_SCALE, value);
 }
 
 CompressionFormat Settings::getCompressionFormat()
