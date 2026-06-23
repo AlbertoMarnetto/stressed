@@ -2,6 +2,8 @@
 
 #include "app/resource.h"
 
+#include <array>
+
 namespace Ui
 {
   class BitmapResource;
